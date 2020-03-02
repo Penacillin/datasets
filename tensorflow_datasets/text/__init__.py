@@ -56,3 +56,5 @@ from tensorflow_datasets.text.winogrande import Winogrande
 from tensorflow_datasets.text.wordnet import Wordnet
 from tensorflow_datasets.text.xnli import Xnli
 from tensorflow_datasets.text.yelp_polarity import YelpPolarityReviews
+
+from tensorflow_datasets.text.rtt_news_dataset import RttNewsDataset  # TODO(rtt_news_dataset) Sort alphabetically

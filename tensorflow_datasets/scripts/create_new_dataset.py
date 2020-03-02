@@ -23,6 +23,15 @@ python -m tensorflow_datasets.scripts.create_new_dataset \
 """
 
 import os
+import sys
+
+root_path = os.path.abspath(__file__)
+while os.path.basename(root_path) != "tensorflow_datasets":
+    print(root_path)
+    root_path = os.path.dirname(root_path)
+root_path = os.path.dirname(root_path)
+print(root_path)
+sys.path.append(root_path)
 
 from absl import app
 from absl import flags
