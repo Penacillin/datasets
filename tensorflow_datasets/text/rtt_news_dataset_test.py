@@ -23,8 +23,7 @@ class RttNewsDatasetTest(testing.DatasetBuilderTestCase):
   # TODO(rtt_news_dataset):
   DATASET_CLASS = rtt_news_dataset.RttNewsDataset
   SPLITS = {
-      "train": 3,  # Number of fake train example
-      "test": 1,  # Number of fake test example
+      "train": 4,  # Number of fake train example
   }
 
   # If you are calling `download/download_and_extract` with a dict, like:

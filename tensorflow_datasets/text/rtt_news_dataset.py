@@ -5,6 +5,9 @@ from __future__ import division
 from __future__ import print_function
 
 import os, sys
+import pandas as pd
+import datetime
+import math
 
 root_path = os.path.abspath(__file__)
 while os.path.basename(root_path) != "tensorflow_datasets":
@@ -62,23 +65,34 @@ class RttNewsDataset(tfds.core.GeneratorBasedBuilder):
     # dl_manager is a tfds.download.DownloadManager that can be used to
     # download and extract URLs
     data_path = dl_manager.manual_dir
+    price_df = pd.read_csv(os.path.join(data_path, 'market_data', 'GSPC.csv'))
+    price_df['Date'] = pd.to_datetime(price_df['Date'])
+    price_df.set_index('Date', inplace=True)
     return [
         tfds.core.SplitGenerator(
             name=tfds.Split.TRAIN,
             # These kwargs will be passed to _generate_examples
             gen_kwargs={
-                "article_text_path": data_path
+                "article_text_path": data_path,
+                "price_df": price_df
             },
         ),
     ]
 
-  def _generate_examples(self, article_text_path):
+  def _generate_examples(self, article_text_path, price_df):
     """Yields examples."""
     # TODO(rtt_news_dataset): Yields (key, example) tuples from the dataset
     for article_file in tf.io.gfile.listdir(article_text_path):
         file_path = os.path.join(article_text_path, article_file)
+        if tf.io.gfile.isdir(file_path): continue
         file_ptr = tf.io.gfile.GFile(file_path)
-        label = file_ptr.readline()
+
+        desired_date = pd.Timestamp(datetime.date.fromisoformat(article_file[:10]))
+        label = 0
+        for j in range(len(price_df)):
+            if price_df.index[j] >= desired_date:
+                row = price_df.iloc[j]
+                label = math.log(row['Close'] / row['Open'])
         yield article_file, {
             "article": file_ptr.read(),
             "label": label

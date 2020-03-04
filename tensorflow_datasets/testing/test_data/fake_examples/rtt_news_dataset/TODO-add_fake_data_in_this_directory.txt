@@ -1,1 +1,0 @@
-TODO(rtt_news_dataset): Add fake data in this directory
