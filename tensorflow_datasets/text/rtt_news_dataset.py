@@ -7,6 +7,7 @@ from __future__ import print_function
 import os, sys
 import pandas as pd
 import datetime
+import pytz
 import math
 
 root_path = os.path.abspath(__file__)
@@ -24,8 +25,7 @@ _CITATION = """
 """
 
 # TODO(rtt_news_dataset):
-_DESCRIPTION = """
-"""
+_DESCRIPTION = """Financial news from https://www.rttnews.com/. Dated 2015-02-19 to 2020-03-02 ."""
 
 
 class RttNewsDataset(tfds.core.GeneratorBasedBuilder):
@@ -34,7 +34,7 @@ class RttNewsDataset(tfds.core.GeneratorBasedBuilder):
   # TODO(rtt_news_dataset): Set up version.
   VERSION = tfds.core.Version('0.2.0')
 
-  MANUAL_DOWNLOAD_INSTRUCTIONS = "lmao"
+  MANUAL_DOWNLOAD_INSTRUCTIONS = "."
 
   def _info(self):
     # TODO(rtt_news_dataset): Specifies the tfds.core.DatasetInfo object
@@ -100,10 +100,10 @@ class RttNewsDataset(tfds.core.GeneratorBasedBuilder):
         label = 0
 
         article_date = datetime.date.fromisoformat(article_file[:10])
-        desired_date = article_date + datetime.timedelta(1)
+        desired_date = article_date  #  + datetime.timedelta(1)
 
         if ((split_before and desired_date > date_split) or
-            (not split_before and desired_date < split_before)):
+            (not split_before and desired_date < date_split)):
             continue
 
         desired_date_pdt = pd.Timestamp(desired_date)
@@ -115,10 +115,10 @@ class RttNewsDataset(tfds.core.GeneratorBasedBuilder):
             row = price_df.loc[desired_date_pdt]
             label = math.log(row['Close'] / row['Open'])
 
-        yield article_file, {
-            "article": file_ptr.read(),
-            "date": int(datetime.datetime.combine(
-                article_date, datetime.datetime.min.time()).timestamp()),
-            "label": label
-        }
+            yield article_file, {
+                "article": file_ptr.read(),
+                "date": int(datetime.datetime.combine(
+                    article_date, datetime.datetime.min.time(), tzinfo=pytz.timezone('US/Eastern')).timestamp()),
+                "label": label
+            }
         file_ptr.close()
